@@ -1,0 +1,17 @@
+{
+  "Upper Body": {
+    "Chest": ["Upper Chest (Clavicular Head)", "Mid/Lower Chest (Sternal Head)"],
+    "Back": ["Lats (Width)", "Traps/Rhomboids (Thickness)"],
+    "Shoulders": ["Anterior Deltoid (Front)", "Lateral Deltoid (Side)", "Posterior Deltoid (Rear)"]
+  },
+  "Lower Body": {
+    "Quads": ["Vastus Medialis (Teardrop)", "Rectus Femoris"],
+    "Hamstrings": ["Biceps Femoris", "Semitendinosus"],
+    "Glutes": ["Gluteus Maximus", "Gluteus Medius (Abduction)"]
+  },
+  "Full Body": {
+    "Push": ["Chest", "Shoulders", "Triceps"],
+    "Pull": ["Back", "Biceps"],
+    "Legs": ["Quads", "Glutes", "Hamstrings"]
+  }
+}
