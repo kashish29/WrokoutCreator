@@ -34,12 +34,7 @@ This project is a Minimum Viable Product (MVP) for an AI-powered workout generat
     The main application code is within the `mvp_workout_generator` subdirectory.
     ```bash
     cd mvp_workout_generator
-    # If you are already in the root workspace, use `cd mvp_workout_generator`
-    # If the README is in the root, and app is in mvp_workout_generator:
-    # All commands below assume you are in the directory containing `app.py`
-    # i.e., inside `mvp_workout_generator` unless specified.
     ```
-    *Correction: The following commands should mostly be run from the project root (the directory containing `mvp_workout_generator/`), especially for venv and tests.*
 
 3.  **Create a virtual environment:**
     It is highly recommended to use a virtual environment. From the project root directory (the one containing the `mvp_workout_generator` folder):
