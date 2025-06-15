@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP Workout Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Workout Generator</h1>
+
+    <!-- Form for user inputs -->
+    <form id="workoutForm">
+        <div>
+            <label for="goal">Primary Goal:</label>
+            <select name="goal" id="goal" required>
+                <option value="Build Muscle">Build Muscle</option>
+                <option value="Get Stronger">Get Stronger</option>
+                <option value="Lose Fat">Lose Fat</option>
+                <option value="Improve Endurance">Improve Endurance</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="experience">Experience Level:</label>
+            <select name="experience" id="experience" required>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Available Equipment:</label>
+            <div>
+                <input type="checkbox" name="equipment" value="Dumbbells" id="eq_dumbbells"> <label for="eq_dumbbells">Dumbbells</label><br>
+                <input type="checkbox" name="equipment" value="Barbell" id="eq_barbell"> <label for="eq_barbell">Barbell</label><br>
+                <input type="checkbox" name="equipment" value="Kettlebell" id="eq_kettlebell"> <label for="eq_kettlebell">Kettlebell</label><br>
+                <input type="checkbox" name="equipment" value="Resistance Bands" id="eq_resistance_bands"> <label for="eq_resistance_bands">Resistance Bands</label><br>
+                <input type="checkbox" name="equipment" value="Bodyweight only" id="eq_bodyweight" checked> <label for="eq_bodyweight">Bodyweight only</label><br>
+            </div>
+        </div>
+
+        <div>
+            <label for="focus">Workout Focus for Today:</label>
+            <select name="focus" id="focus" required>
+                <option value="Upper Body">Upper Body</option>
+                <option value="Lower Body">Lower Body</option>
+                <option value="Full Body">Full Body</option>
+                <option value="Push">Push</option>
+                <option value="Pull">Pull</option>
+                <option value="Legs">Legs</option>
+            </select>
+        </div>
+
+        <button type="submit">Generate Workout</button>
+    </form>
+
+    <!-- Area for displaying messages and workout -->
+    <div id="messageArea" style="margin-top: 20px;">
+        <p id="statusMessage"></p>
+        <p id="errorMessage" style="color: red;"></p>
+    </div>
+
+    <h2>Your Workout Plan:</h2>
+    <pre id="workoutOutput"></pre>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
