@@ -53,8 +53,25 @@
             </select>
         </div>
 
+        <div>
+            <label for="userNotes">Any specific focus or muscles to avoid today? (Optional)</label>
+            <textarea id="userNotes" name="userNotes" rows="3" placeholder="e.g., 'My left shoulder feels a bit pinchy' or 'Let's really focus on arms today'"></textarea>
+        </div>
+
         <button type="submit">Generate Workout</button>
     </form>
+
+    <hr> <!-- Optional: for visual separation -->
+    <h2>User Settings</h2>
+    <div id="userSettingsForm">
+        <div>
+            <label for="apiKey">OpenAI API Key:</label>
+            <input type="password" id="apiKey" name="apiKey" style="width: 300px;">
+            <!-- Using type="password" to mask the key -->
+        </div>
+        <button type="button" id="saveSettingsButton" style="margin-top: 10px;">Save Settings</button>
+        <p id="settingsMessage" style="margin-top: 5px;"></p>
+    </div>
 
     <!-- Area for displaying messages and workout -->
     <div id="messageArea" style="margin-top: 20px;">
