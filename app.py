@@ -1,17 +1,93 @@
 """
 Main Flask application for the MVP Workout Generator.
 Handles user input for workout preferences and generates a workout plan
-using the OpenAI API.
+using the Google Gemini API.
 """
 import os
 import json
 import random
 from flask import Flask, request, jsonify, render_template
-import openai
+import google.generativeai as genai
 from dotenv import load_dotenv
+from flask import Response
 
 # Load environment variables from .env file for local development
 load_dotenv()
+
+
+GEMINI_MODELS = {
+    "gemini-2.0-flash-001": {
+        "id": "gemini-2.0-flash-001", "name": "Gemini 2.0 Flash",
+        "inputPrice": 0.1, "outputPrice": 0.4
+    },
+    "gemini-1.5-flash-002": {
+        "id": "gemini-1.5-flash-002", "name": "Gemini 1.5 Flash (128k+)",
+        "inputPrice": 0.075, "outputPrice": 0.3 # Using first tier pricing
+    },
+    "gemini-2.5-pro-preview-06-05": {
+        "id": "gemini-2.5-pro-preview-06-05", "name": "Gemini 2.5 Pro Preview (200k+)",
+        "inputPrice": 1.25, "outputPrice": 10 # Using first tier pricing
+    },
+    "gemini-2.5-flash-preview-05-20": {
+        "id": "gemini-2.5-flash-preview-05-20", "name": "Gemini 2.5 Flash Preview",
+        "inputPrice": 0.15, "outputPrice": 0.6
+    },
+    # Adding a few more for variety, focusing on priced models
+    "gemini-1.5-pro-latest": {
+		"id": "gemini-1.5-pro-latest", "name": "Gemini 1.5 Pro",
+		"inputPrice": 3.5, "outputPrice": 10.5
+	},
+    "gemini-1.5-flash-latest": {
+		"id": "gemini-1.5-flash-latest", "name": "Gemini 1.5 Flash",
+		"inputPrice": 0.35, "outputPrice": 0.70
+	},
+}
+DEFAULT_MODEL_ID = "gemini-2.0-flash-001"
+
+class SimpleGeminiProvider:
+    def __init__(self, options):
+        if not options.get("gemini_api_key"):
+            raise ValueError("Gemini API key is required.")
+        
+        self.options = options
+        genai.configure(api_key=options["gemini_api_key"])
+        
+        self.model_id = options.get("model_id", DEFAULT_MODEL_ID)
+        self.model_info = GEMINI_MODELS.get(self.model_id)
+        if not self.model_info:
+            raise ValueError(f"Unsupported model ID: {self.model_id}")
+            
+        self.model = genai.GenerativeModel(
+            self.model_id,
+            generation_config={
+                "max_output_tokens": options.get("model_max_tokens"),
+                "temperature": options.get("model_temperature", 0.5),
+            }
+        )
+
+    def create_message_stream(self, system_instruction, user_prompt):
+        full_prompt = f"{system_instruction}\n\n{user_prompt}"
+        
+        try:
+            # The Python SDK doesn't have the same usage metadata stream.
+            # We will calculate tokens based on the final response.
+            response_stream = self.model.generate_content(full_prompt, stream=True)
+
+            for chunk in response_stream:
+                if chunk.text:
+                    yield json.dumps({"type": "text", "text": chunk.text}) + "\n"
+            
+            yield json.dumps({"type": "usage", "inputTokens": 0, "outputTokens": 0, "totalCost": 0}) + "\n"
+
+        except Exception as e:
+            app.logger.error(f"Gemini stream generation failed: {e}")
+            yield json.dumps({"type": "error", "message": str(e)}) + "\n"
+
+
+    def calculate_cost(self, input_tokens, output_tokens):
+        input_cost = (input_tokens / 1_000_000) * self.model_info["inputPrice"]
+        output_cost = (output_tokens / 1_000_000) * self.model_info["outputPrice"]
+        return input_cost + output_cost
 
 app = Flask(__name__)
 
@@ -26,20 +102,29 @@ except FileNotFoundError:
 # API Key Configuration
 USER_CONFIG_FILE = "user_config.json"
 
-def load_api_key():
+def load_gemini_api_key():
+    """Loads the Gemini API key from config file or environment variable."""
     try:
         with open(USER_CONFIG_FILE, "r", encoding="utf-8") as f:
             config = json.load(f)
-            return config.get("OPENAI_API_KEY")
+            return config.get("GEMINI_API_KEY")
     except FileNotFoundError:
-        return os.getenv("OPENAI_API_KEY")
+        return os.getenv("GEMINI_API_KEY")
     except json.JSONDecodeError:
         app.logger.error(f"Error decoding {USER_CONFIG_FILE}. Using environment variable for API key.")
-        return os.getenv("OPENAI_API_KEY")
+        return os.getenv("GEMINI_API_KEY")
 
-openai.api_key = load_api_key()
-if not openai.api_key:
-    app.logger.warning("OpenAI API key is not configured (checked user_config.json and environment variable). AI features will not work.")
+gemini_api_key = load_gemini_api_key()
+gemini_provider = None
+
+if gemini_api_key:
+    try:
+        gemini_provider = SimpleGeminiProvider({"gemini_api_key": gemini_api_key})
+        app.logger.info("Gemini provider initialized successfully.")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize Gemini provider: {e}")
+else:
+    app.logger.warning("Gemini API key not found. AI features will be unavailable.")
 
 @app.route("/")
 def index():
@@ -48,27 +133,26 @@ def index():
 
 @app.route("/save_settings", methods=["POST"])
 def save_settings():
+    global gemini_provider
     try:
         data = request.get_json()
-        api_key = data.get("apiKey")
-        if not api_key:
+        gemini_key = data.get("geminiApiKey")
+        if not gemini_key:
             return jsonify({"error": "API key is required."}), 400
 
-        config_data = {}
-        if os.path.exists(USER_CONFIG_FILE):
-            try:
-                with open(USER_CONFIG_FILE, "r", encoding="utf-8") as f:
-                    config_data = json.load(f)
-            except json.JSONDecodeError:
-                app.logger.warning(f"Could not decode {USER_CONFIG_FILE}, it will be overwritten.")
-
-        config_data["OPENAI_API_KEY"] = api_key
+        config_data = {"GEMINI_API_KEY": gemini_key}
 
         with open(USER_CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(config_data, f, indent=4)
 
-        openai.api_key = api_key
-        app.logger.info(f"OpenAI API Key updated from UI and saved to {USER_CONFIG_FILE}.")
+        try:
+            gemini_provider = SimpleGeminiProvider({"gemini_api_key": gemini_key})
+            app.logger.info("Gemini provider re-initialized with new key.")
+        except Exception as e:
+            app.logger.error(f"Failed to initialize Gemini provider with new key: {e}")
+            return jsonify({"error": "Invalid Gemini API Key."}), 400
+
+        app.logger.info(f"Gemini API Key saved to {USER_CONFIG_FILE}.")
         return jsonify({"message": "API Key saved successfully!"}), 200
     except Exception as e:
         app.logger.error(f"Error saving settings: {e}", exc_info=True)
@@ -76,10 +160,6 @@ def save_settings():
 
 @app.route("/generate_workout", methods=["POST"])
 def generate_workout():
-    if not openai.api_key:
-        app.logger.error("OpenAI API key is not configured.")
-        return jsonify({"error": "AI service is not configured. Please contact support or save your API key in User Settings."}), 500
-
     try:
         data = request.get_json(silent=True)
         if not data:
@@ -111,7 +191,7 @@ def generate_workout():
                 "Intensity_Protocol": "Main lift should be in the 3-5 rep range (RPE 9). Back-off sets in the 6-8 rep range (RPE 7-8).",
                 "Rest_Protocol": "3-5 minutes after heavy sets; 2-3 minutes for back-off sets."
             }
-        else:
+        else: # General Fitness
             rules = {
                 "Methodology": "Traditional Circuits",
                 "Methodology_Description": "Move from one exercise to the next with minimal rest to improve general conditioning and muscular endurance.",
@@ -125,27 +205,23 @@ def generate_workout():
         focus_anatomy_details = anatomy_data.get(focus)
         if focus_anatomy_details:
             sub_muscles = []
-            for part_key in focus_anatomy_details: # Iterate through keys like "Chest", "Back" under "Upper Body"
+            for part_key in focus_anatomy_details:
                 if isinstance(focus_anatomy_details[part_key], list):
                      sub_muscles.extend(focus_anatomy_details[part_key])
-                elif isinstance(focus_anatomy_details[part_key], dict): # Should not happen with current JSON, but for robustness
+                elif isinstance(focus_anatomy_details[part_key], dict):
                     for specific_muscles in focus_anatomy_details[part_key].values():
                         sub_muscles.extend(specific_muscles)
 
-
             if len(sub_muscles) > 1:
-                index1 = random.randrange(len(sub_muscles))
-                index2 = random.randrange(len(sub_muscles))
-                while index1 == index2:
-                    index2 = random.randrange(len(sub_muscles))
+                index1, index2 = random.sample(range(len(sub_muscles)), 2)
                 emphasized_sub_muscle = sub_muscles[index1]
                 de_emphasized_sub_muscle = sub_muscles[index2]
             elif len(sub_muscles) == 1:
                 emphasized_sub_muscle = sub_muscles[0]
 
-        final_prompt = f"""
-You are 'Atlas', an AI exercise physiologist and elite-level strength and conditioning coach. Your core competency is synthesizing client data into precise, safe, and hyper-effective training protocols. You have a deep, nuanced understanding of human anatomy, biomechanics, and training methodologies. Your tone is knowledgeable, encouraging, and direct. You will act as an expert system to generate a workout plan based on the following profile and a strict set of unbreakable rules.
-
+        system_instruction = "You are 'Atlas', an AI exercise physiologist and elite-level strength and conditioning coach. Your core competency is synthesizing client data into precise, safe, and hyper-effective training protocols. You have a deep, nuanced understanding of human anatomy, biomechanics, and training methodologies. Your tone is knowledgeable, encouraging, and direct. You will act as an expert system to generate a workout plan based on the following profile and a strict set of unbreakable rules."
+        
+        user_prompt = f"""
 ---
 ### **PART 1: CLIENT PROFILE**
 ---
@@ -190,32 +266,14 @@ You are 'Atlas', an AI exercise physiologist and elite-level strength and condit
 *   For each exercise, provide the sets, reps, and the exact rest period as defined in your rules.
 *   For each exercise, include a single, impactful "Coach's Cue" focusing on the most critical aspect of its form or execution.
 """
+        
+        if not gemini_provider:
+            return jsonify({"error": "AI service is not configured. Please save your Gemini API key in User Settings."}), 500
 
-        app.logger.info(f"Assembled final prompt. Length: {len(final_prompt)}")
+        app.logger.info(f"Using Gemini provider to generate workout. Prompt length: {len(user_prompt)}")
+        stream = gemini_provider.create_message_stream(system_instruction, user_prompt)
+        return Response(stream, mimetype='application/json')
 
-        chat_completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are 'Atlas', an AI exercise physiologist and elite-level strength and conditioning coach."},
-                {"role": "user", "content": final_prompt}
-            ]
-        )
-
-        workout_plan = chat_completion.choices[0].message.content.strip()
-        app.logger.info(f"Received workout plan snippet: {workout_plan[:200]}...")
-        return jsonify({"workout": workout_plan})
-
-    except openai.AuthenticationError as e:
-        app.logger.error(f"OpenAI Authentication Error: {e}")
-        key_source = "user_config.json" if os.path.exists(USER_CONFIG_FILE) else "environment variable"
-        app.logger.error(f"Attempted to use API key from {key_source}.")
-        return jsonify({"error": "AI service authentication failed. Please check your API key configuration in User Settings or environment variables."}), 500
-    except openai.RateLimitError as e:
-        app.logger.error(f"OpenAI Rate Limit Error: {e}")
-        return jsonify({"error": "AI service rate limit exceeded. Please try again later."}), 429
-    except openai.OpenAIError as e:
-        app.logger.error(f"OpenAI API Error: {e}")
-        return jsonify({"error": f"An error occurred with the AI service: {str(e)}"}), 500
     except Exception as e:
         app.logger.error(f"An unexpected error occurred in generate_workout: {e}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
