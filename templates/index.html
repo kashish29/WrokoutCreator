@@ -12,21 +12,29 @@
     <!-- Form for user inputs -->
     <form id="workoutForm">
         <div>
-            <label for="goal">Primary Goal:</label>
-            <select name="goal" id="goal" required>
-                <option value="Build Muscle">Build Muscle</option>
-                <option value="Get Stronger">Get Stronger</option>
-                <option value="Lose Fat">Lose Fat</option>
-                <option value="Improve Endurance">Improve Endurance</option>
-            </select>
-        </div>
-
-        <div>
             <label for="experience">Experience Level:</label>
             <select name="experience" id="experience" required>
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="goal">Primary Goal:</label>
+            <select name="goal" id="goal" required>
+                <option value="Build Muscle">Build Muscle</option>
+                <option value="Get Stronger">Get Stronger</option>
+                <option value="General Fitness">General Fitness</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="focus">Workout Focus for Today:</label>
+            <select name="focus" id="focus" required>
+                <option value="Upper Body">Upper Body</option>
+                <option value="Lower Body">Lower Body</option>
+                <option value="Full Body">Full Body</option>
             </select>
         </div>
 
@@ -42,19 +50,7 @@
         </div>
 
         <div>
-            <label for="focus">Workout Focus for Today:</label>
-            <select name="focus" id="focus" required>
-                <option value="Upper Body">Upper Body</option>
-                <option value="Lower Body">Lower Body</option>
-                <option value="Full Body">Full Body</option>
-                <option value="Push">Push</option>
-                <option value="Pull">Pull</option>
-                <option value="Legs">Legs</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="userNotes">Any specific focus or muscles to avoid today? (Optional)</label>
+            <label for="userNotes">Any notes for the coach? (e.g., injuries, preferences)</label>
             <textarea id="userNotes" name="userNotes" rows="3" placeholder="e.g., 'My left shoulder feels a bit pinchy' or 'Let's really focus on arms today'"></textarea>
         </div>
 
@@ -67,10 +63,46 @@
         <div>
             <label for="geminiApiKey">Gemini API Key:</label>
             <input type="password" id="geminiApiKey" name="geminiApiKey" style="width: 300px;">
-            <!-- Using type="password" to mask the key -->
+        </div>
+        <div>
+            <label for="strength_freq">Strength Frequency (days/week):</label>
+            <input type="number" id="strength_freq" name="strength_freq" min="0" max="7">
+        </div>
+        <div>
+            <label for="hiit_freq">HIIT Frequency (days/week):</label>
+            <input type="number" id="hiit_freq" name="hiit_freq" min="0" max="7">
+        </div>
+        <div>
+            <label for="zone2_freq">Zone 2 Frequency (days/week):</label>
+            <input type="number" id="zone2_freq" name="zone2_freq" min="0" max="7">
+        </div>
+        <div>
+            <label for="recovery_freq">Recovery Frequency (days/week):</label>
+            <input type="number" id="recovery_freq" name="recovery_freq" min="0" max="7">
+        </div>
+        <div>
+            <label for="focus_rotation">Strength Focus Rotation (comma-separated):</label>
+            <input type="text" id="focus_rotation" name="focus_rotation" style="width: 300px;">
+        </div>
+        <div>
+            <label for="primary_goal">Primary Goal:</label>
+            <select name="primary_goal" id="primary_goal">
+                <option value="Balanced Fitness">Balanced Fitness</option>
+                <option value="Strength Gain">Strength Gain</option>
+                <option value="Muscle Hypertrophy">Muscle Hypertrophy</option>
+                <option value="Fat Loss">Fat Loss</option>
+                <option value="Athletic Performance">Athletic Performance</option>
+            </select>
         </div>
         <button type="button" id="saveSettingsButton" style="margin-top: 10px;">Save Settings</button>
         <p id="settingsMessage" style="margin-top: 5px;"></p>
+    </div>
+
+    <hr>
+
+    <h2>Workout History (Last 14 Days)</h2>
+    <div id="workoutHistory">
+        <p>Loading history...</p>
     </div>
 
     <!-- Area for displaying messages and workout -->
@@ -81,6 +113,7 @@
 
     <h2>Your Workout Plan:</h2>
     <pre id="workoutOutput"></pre>
+    <button id="saveWorkoutButton" style="display: none; margin-top: 10px;">Save Workout</button>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

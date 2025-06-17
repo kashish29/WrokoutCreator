@@ -6,10 +6,13 @@ using the Google Gemini API.
 import os
 import json
 import random
+from collections import Counter
 from flask import Flask, request, jsonify, render_template
 import google.generativeai as genai
 from dotenv import load_dotenv
 from flask import Response
+from . import database as db
+from datetime import datetime, timedelta
 
 # Load environment variables from .env file for local development
 load_dotenv()
@@ -126,6 +129,10 @@ if gemini_api_key:
 else:
     app.logger.warning("Gemini API key not found. AI features will be unavailable.")
 
+# Initialize the database
+with app.app_context():
+    db.setup_database()
+
 @app.route("/")
 def index():
     """Renders the main workout configuration page."""
@@ -158,6 +165,41 @@ def save_settings():
         app.logger.error(f"Error saving settings: {e}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred while saving settings."}), 500
 
+@app.route("/get_user_settings", methods=["GET"])
+def get_user_settings():
+    # For now, we'll use a hardcoded user_id. In a real app, you'd get this from the session.
+    user_id = 1
+    try:
+        settings = db.get_user_settings(user_id)
+        return jsonify(settings)
+    except Exception as e:
+        app.logger.error(f"Error getting user settings: {e}", exc_info=True)
+        return jsonify({"error": "Could not retrieve user settings."}), 500
+
+@app.route("/save_user_settings", methods=["POST"])
+def save_user_settings():
+    # For now, we'll use a hardcoded user_id.
+    user_id = 1
+    try:
+        data = request.get_json()
+        db.save_user_settings(user_id, data)
+        return jsonify({"message": "Settings saved successfully!"}), 200
+    except Exception as e:
+        app.logger.error(f"Error saving user settings: {e}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred while saving settings."}), 500
+
+@app.route("/get_workout_history", methods=["GET"])
+def get_workout_history():
+    # For now, we'll use a hardcoded user_id.
+    user_id = 1
+    try:
+        days = int(request.args.get('days', 14))
+        history = db.get_workout_history(user_id, days)
+        return jsonify(history)
+    except Exception as e:
+        app.logger.error(f"Error getting workout history: {e}", exc_info=True)
+        return jsonify({"error": "Could not retrieve workout history."}), 500
+
 @app.route("/generate_workout", methods=["POST"])
 def generate_workout():
     try:
@@ -165,7 +207,10 @@ def generate_workout():
         if not data:
             return jsonify({"error": "Invalid request: No data provided or data is not valid JSON."}), 400
 
-        goal = data.get("goal")
+        user_id = 1 # Hardcoded for now
+        settings = db.get_user_settings(user_id)
+        
+        goal = data.get("goal") or settings.get("primary_goal")
         experience = data.get("experience")
         equipment = data.get("equipment")
         focus = data.get("focus")
@@ -272,11 +317,65 @@ def generate_workout():
 
         app.logger.info(f"Using Gemini provider to generate workout. Prompt length: {len(user_prompt)}")
         stream = gemini_provider.create_message_stream(system_instruction, user_prompt)
-        return Response(stream, mimetype='application/json')
+
+        # Consume the stream to get the full workout text.
+        full_workout_text = ""
+        for chunk_json in stream:
+            # The stream yields JSON strings, so we need to parse them.
+            try:
+                chunk = json.loads(chunk_json)
+                if chunk.get("type") == "text":
+                    full_workout_text += chunk.get("text", "")
+                elif chunk.get("type") == "error":
+                    app.logger.error(f"Error from Gemini stream: {chunk.get('message')}")
+                    return jsonify({"error": f"AI generation failed: {chunk.get('message')}"}), 500
+            except json.JSONDecodeError:
+                app.logger.error(f"Failed to decode JSON chunk from stream: {chunk_json}")
+                # Continue if a chunk is malformed, but log it.
+                pass
+        
+        # Now that we have the full text, save it to history.
+        try:
+            user_id = 1 # Hardcoded for now
+            # As noted before, 'muscles_worked' isn't determined here.
+            # This could be an improvement for the future.
+            db.save_workout_to_history(user_id, goal, focus, [], full_workout_text)
+            app.logger.info(f"Workout saved to history for user {user_id}.")
+        except Exception as e:
+            app.logger.error(f"Failed to save workout to history: {e}", exc_info=True)
+            # Not failing the request, but the client should be aware if needed.
+
+        # Return a single JSON object as the client expects.
+        response_data = {
+            "pillar": goal,
+            "focus": focus,
+            "muscles_worked": [], # Sending an empty list as placeholder
+            "workout_text": full_workout_text
+        }
+        return jsonify(response_data)
 
     except Exception as e:
         app.logger.error(f"An unexpected error occurred in generate_workout: {e}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
+
+@app.route("/save_workout", methods=["POST"])
+def save_workout():
+    user_id = 1 # Hardcoded for now
+    try:
+        data = request.get_json()
+        pillar = data.get("pillar")
+        focus = data.get("focus")
+        muscles_worked = data.get("muscles_worked")
+        full_workout_text = data.get("full_workout_text")
+
+        if not all([pillar, focus, muscles_worked, full_workout_text]):
+            return jsonify({"error": "Missing required workout data."}), 400
+
+        db.save_workout_to_history(user_id, pillar, focus, muscles_worked, full_workout_text)
+        return jsonify({"message": "Workout saved successfully!"}), 200
+    except Exception as e:
+        app.logger.error(f"Error saving workout: {e}", exc_info=True)
+        return jsonify({"error": "Could not save workout."}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
