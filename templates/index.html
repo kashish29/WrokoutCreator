@@ -7,9 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="container"> <!-- Main content wrapper -->
+    <div style="text-align: right; margin-bottom: 15px; margin-top: -10px;"> <!-- Adjusted margins -->
+        <button id="themeToggle">Toggle Theme</button> <!-- Styled as secondary button by default via CSS -->
+    </div>
     <h1>Workout Generator</h1>
 
     <!-- Form for user inputs -->
+    <section class="card">
     <form id="workoutForm">
         <div>
             <label for="experience">Experience Level:</label>
@@ -56,8 +61,10 @@
 
         <button type="submit">Generate Workout</button>
     </form>
+    </section>
 
     <hr> <!-- Optional: for visual separation -->
+    <section class="card">
     <h2>User Settings</h2>
     <div id="userSettingsForm">
         <div>
@@ -94,16 +101,43 @@
                 <option value="Athletic Performance">Athletic Performance</option>
             </select>
         </div>
+
+        <div>
+            <label for="ai_model_id">AI Model:</label>
+            <select name="ai_model_id" id="ai_model_id">
+                <!-- Options can be pre-filled or loaded by JS. Hardcoding based on app.py GEMINI_MODELS -->
+                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
+                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Latest)</option>
+                <option value="gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+                <!-- Manually adding a few more common ones from the GEMINI_MODELS list in app.py -->
+                <option value="gemini-1.5-flash-002">Gemini 1.5 Flash (128k+)</option>
+                <option value="gemini-2.5-pro-preview-06-05">Gemini 2.5 Pro Preview (200k+)</option>
+                <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash Preview</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="workout_duration_preference">Preferred Workout Duration:</label>
+            <select name="workout_duration_preference" id="workout_duration_preference">
+                <option value="Any">Any</option>
+                <option value="Short">Short (~30min)</option>
+                <option value="Medium">Medium (~45-60min)</option>
+                <option value="Long">Long (~60-90min)</option>
+            </select>
+        </div>
         <button type="button" id="saveSettingsButton" style="margin-top: 10px;">Save Settings</button>
         <p id="settingsMessage" style="margin-top: 5px;"></p>
     </div>
+    </section>
 
     <hr>
 
+    <section class="card">
     <h2>Workout History (Last 14 Days)</h2>
     <div id="workoutHistory">
         <p>Loading history...</p>
     </div>
+    </section>
 
     <!-- Area for displaying messages and workout -->
     <div id="messageArea" style="margin-top: 20px;">
@@ -111,10 +145,14 @@
         <p id="errorMessage" style="color: red;"></p>
     </div>
 
+    <section class="card">
     <h2>Your Workout Plan:</h2>
     <pre id="workoutOutput"></pre>
     <button id="saveWorkoutButton" style="display: none; margin-top: 10px;">Save Workout</button>
+    </section>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</div> <!-- Close main content wrapper -->
 </body>
 </html>

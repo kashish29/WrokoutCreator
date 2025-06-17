@@ -208,13 +208,43 @@ def generate_workout():
             return jsonify({"error": "Invalid request: No data provided or data is not valid JSON."}), 400
 
         user_id = 1 # Hardcoded for now
-        settings = db.get_user_settings(user_id)
+        settings = db.get_user_settings(user_id) # This now includes ai_model_id and workout_duration_preference
+
+        # --- User-specific Gemini Provider Initialization ---
+        user_gemini_api_key = load_gemini_api_key() # Using the globally managed key as "user's key"
+        current_gemini_provider = None
+
+        if user_gemini_api_key:
+            try:
+                user_model_id = settings.get('ai_model_id', DEFAULT_MODEL_ID)
+                # Potentially fetch max_tokens and temperature from settings or model defaults
+                # For now, using hardcoded defaults or provider's internal defaults
+                provider_options = {
+                    "gemini_api_key": user_gemini_api_key,
+                    "model_id": user_model_id,
+                    "model_max_tokens": GEMINI_MODELS.get(user_model_id, {}).get("max_output_tokens", 8192), # Default from a popular model or a high value
+                    "model_temperature": 0.5 # Default temperature
+                }
+                current_gemini_provider = SimpleGeminiProvider(provider_options)
+                app.logger.info(f"Using model {user_model_id} for user {user_id}.")
+            except Exception as e:
+                app.logger.error(f"Failed to initialize user-specific Gemini provider: {e}")
+                return jsonify({"error": f"Failed to initialize AI model: {e}"}), 500
+        else:
+            app.logger.warning("User Gemini API key not found. AI features will be unavailable for this request.")
+            return jsonify({"error": "AI service is not configured. Please save your Gemini API key in User Settings."}), 500
         
         goal = data.get("goal") or settings.get("primary_goal")
         experience = data.get("experience")
         equipment = data.get("equipment")
         focus = data.get("focus")
         user_notes = data.get("userNotes")
+
+        # --- Workout Duration Preference ---
+        duration_preference = settings.get('workout_duration_preference', 'Any')
+        duration_prompt_segment = ""
+        if duration_preference and duration_preference != "Any":
+            duration_prompt_segment = f"*   **Preferred Workout Duration:** Client prefers a {duration_preference} session."
 
         if not all([goal, experience, equipment, focus]):
             return jsonify({"error": "Invalid request: Missing one or more required fields (goal, experience, equipment, focus)."}), 400
@@ -274,6 +304,7 @@ def generate_workout():
 *   **Experience Level:** {experience}
 *   **Available Equipment:** {equipment_str}
 *   **Workout Focus for Today:** {focus}
+{duration_prompt_segment}
 *   **Client's Self-Reported Notes (Consider carefully):** {user_notes or "None provided."}
 
 ---
@@ -312,11 +343,12 @@ def generate_workout():
 *   For each exercise, include a single, impactful "Coach's Cue" focusing on the most critical aspect of its form or execution.
 """
         
-        if not gemini_provider:
-            return jsonify({"error": "AI service is not configured. Please save your Gemini API key in User Settings."}), 500
+        if not current_gemini_provider: # Check the locally instantiated provider
+            # This case should ideally be caught by the API key check earlier, but as a safeguard:
+            return jsonify({"error": "AI service could not be initialized for the request."}), 500
 
-        app.logger.info(f"Using Gemini provider to generate workout. Prompt length: {len(user_prompt)}")
-        stream = gemini_provider.create_message_stream(system_instruction, user_prompt)
+        app.logger.info(f"Using model {current_gemini_provider.model_id} to generate workout. Prompt length: {len(user_prompt)}")
+        stream = current_gemini_provider.create_message_stream(system_instruction, user_prompt)
 
         # Consume the stream to get the full workout text.
         full_workout_text = ""
