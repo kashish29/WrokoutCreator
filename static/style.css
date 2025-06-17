@@ -2,101 +2,124 @@
 
 /* --- Variables & Root --- */
 :root {
-    --body-bg: #f0f2f5;
-    --card-bg: #ffffff;
-    --text-color: #333;
-    --text-color-light: #555; /* For labels and secondary text */
-    --heading-color: #2c3e50;
-    --main-title-color: #34495e;
-    --border-color: #eaecee;
-    --input-border-color: #dcdfe6;
-    --link-color: #3498db;
-    --link-focus-border-color: #3498db; /* same as link for now */
-    --link-focus-shadow-color: rgba(52, 152, 219, 0.2);
-    --shadow-color: rgba(0, 0, 0, 0.08);
-    --input-bg: #ffffff;
+    --font-family-main: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-mono: 'Consolas', 'Monaco', monospace;
+    --transition-speed: 0.3s;
 
-    /* Buttons */
-    --button-primary-bg: #27ae60;
-    --button-primary-text: #ffffff;
-    --button-primary-hover-bg: #229954;
-    --button-secondary-bg: #3498db; /* For save workout, theme toggle */
-    --button-secondary-text: #ffffff;
-    --button-secondary-hover-bg: #2980b9;
+    /* Light Theme */
+    --body-bg-light: #f4f7f9;
+    --card-bg-light: #ffffff;
+    --text-color-light: #333;
+    --text-color-secondary-light: #666;
+    --heading-color-light: #1a253c;
+    --border-color-light: #e9ecef;
+    --input-border-color-light: #ced4da;
+    --input-bg-light: #ffffff;
+    --shadow-color-light: rgba(0, 0, 0, 0.07);
+    --link-color-light: #007bff;
+    --link-focus-shadow-light: rgba(0, 123, 255, 0.2);
 
-    /* Messages */
-    --message-status-bg: #eaf2f8;
-    --message-status-text: var(--heading-color);
-    --message-status-border: #aed6f1;
-    --message-error-bg: #fdedec;
-    --message-error-text: #c0392b;
-    --message-error-border: #f5b7b1;
-    --message-settings-bg: #e8f6f3;
-    --message-settings-text: #1e8449;
-    --message-settings-border: #a9dfbf;
+    --button-primary-bg-light: #007bff;
+    --button-primary-text-light: #ffffff;
+    --button-primary-hover-bg-light: #0069d9;
 
-    /* Specific Areas */
-    --workout-output-bg: #f9f9f9;
-    --workout-output-text-color: var(--text-color);
-    --history-item-bg: #fdfdfd;
-    --history-item-summary-hover-bg: var(--message-status-bg);
-    --history-item-pre-bg: var(--body-bg);
-    --history-item-pre-border-color: var(--input-border-color);
-    --history-item-pre-text-color: var(--text-color);
+    --button-secondary-bg-light: #6c757d;
+    --button-secondary-text-light: #ffffff;
+    --button-secondary-hover-bg-light: #5a6268;
 
-    /* Transitions */
-    --transition-speed: 0.2s;
+    --message-status-bg-light: #e6f7ff;
+    --message-status-border-light: #91d5ff;
+    --message-error-bg-light: #fff1f0;
+    --message-error-border-light: #ffa39e;
+    --message-settings-bg-light: #f6ffed;
+    --message-settings-border-light: #b7eb8f;
+
+    /* Dark Theme */
+    --body-bg-dark: #121212;
+    --card-bg-dark: #1e1e1e;
+    --text-color-dark: #e0e0e0;
+    --text-color-secondary-dark: #b0b0b0;
+    --heading-color-dark: #ffffff;
+    --border-color-dark: #333;
+    --input-border-color-dark: #555;
+    --input-bg-dark: #2a2a2a;
+    --shadow-color-dark: rgba(255, 255, 255, 0.05);
+    --link-color-dark: #64b5f6;
+    --link-focus-shadow-dark: rgba(100, 181, 246, 0.25);
+
+    --button-primary-bg-dark: #64b5f6;
+    --button-primary-text-dark: #121212;
+    --button-primary-hover-bg-dark: #42a5f5;
+
+    --button-secondary-bg-dark: #90a4ae;
+    --button-secondary-text-dark: #1e1e1e;
+    --button-secondary-hover-bg-dark: #78909c;
+
+    --message-status-bg-dark: #1e3a4f;
+    --message-status-border-dark: #294a68;
+    --message-error-bg-dark: #5c2320;
+    --message-error-border-dark: #7c302d;
+    --message-settings-bg-dark: #2a4c3a;
+    --message-settings-border-dark: #386641;
 }
 
-/* --- Dark Mode Theme Overrides --- */
+/* --- Theme Application --- */
+body {
+    --body-bg: var(--body-bg-light);
+    --card-bg: var(--card-bg-light);
+    --text-color: var(--text-color-light);
+    --text-color-secondary: var(--text-color-secondary-light);
+    --heading-color: var(--heading-color-light);
+    --border-color: var(--border-color-light);
+    --input-border-color: var(--input-border-color-light);
+    --input-bg: var(--input-bg-light);
+    --shadow-color: var(--shadow-color-light);
+    --link-color: var(--link-color-light);
+    --link-focus-shadow: var(--link-focus-shadow-light);
+    --button-primary-bg: var(--button-primary-bg-light);
+    --button-primary-text: var(--button-primary-text-light);
+    --button-primary-hover-bg: var(--button-primary-hover-bg-light);
+    --button-secondary-bg: var(--button-secondary-bg-light);
+    --button-secondary-text: var(--button-secondary-text-light);
+    --button-secondary-hover-bg: var(--button-secondary-hover-bg-light);
+    --message-status-bg: var(--message-status-bg-light);
+    --message-status-border: var(--message-status-border-light);
+    --message-error-bg: var(--message-error-bg-light);
+    --message-error-border: var(--message-error-border-light);
+    --message-settings-bg: var(--message-settings-bg-light);
+    --message-settings-border: var(--message-settings-border-light);
+}
+
 body.dark-mode {
-    --body-bg: #1a1a1a; /* Darker grey */
-    --card-bg: #2c2c2c; /* Slightly lighter than body */
-    --text-color: #e0e0e0;
-    --text-color-light: #bbbbbb;
-    --heading-color: #f5f5f5;
-    --main-title-color: #ffffff;
-    --border-color: #424242;
-    --input-border-color: #555555;
-    --link-color: #5dade2; /* Lighter blue for dark mode */
-    --link-focus-border-color: #5dade2;
-    --link-focus-shadow-color: rgba(93, 173, 226, 0.25);
-    --shadow-color: rgba(255, 255, 255, 0.05); /* Light shadow for dark mode */
-    --input-bg: #333333;
-
-    /* Buttons */
-    --button-primary-bg: #2ecc71; /* Brighter green */
-    --button-primary-text: #121212; /* Dark text on bright button */
-    --button-primary-hover-bg: #28b463;
-    --button-secondary-bg: #5dade2; /* Lighter blue */
-    --button-secondary-text: #1e1e1e;
-    --button-secondary-hover-bg: #529ecc;
-
-    /* Messages */
-    --message-status-bg: #2c3e50; /* Dark blue */
-    --message-status-text: #eaf2f8;
-    --message-status-border: #34495e;
-    --message-error-bg: #5c2320; /* Dark red */
-    --message-error-text: #fdedec;
-    --message-error-border: #7c302d;
-    --message-settings-bg: #1e4e34; /* Dark green */
-    --message-settings-text: #e8f6f3;
-    --message-settings-border: #2a6c47;
-
-    /* Specific Areas */
-    --workout-output-bg: #252525;
-    --workout-output-text-color: var(--text-color);
-    --history-item-bg: #303030;
-    --history-item-summary-hover-bg: var(--message-status-bg);
-    --history-item-pre-bg: var(--body-bg);
-    --history-item-pre-border-color: var(--input-border-color);
-    --history-item-pre-text-color: var(--text-color);
+    --body-bg: var(--body-bg-dark);
+    --card-bg: var(--card-bg-dark);
+    --text-color: var(--text-color-dark);
+    --text-color-secondary: var(--text-color-secondary-dark);
+    --heading-color: var(--heading-color-dark);
+    --border-color: var(--border-color-dark);
+    --input-border-color: var(--input-border-color-dark);
+    --input-bg: var(--input-bg-dark);
+    --shadow-color: var(--shadow-color-dark);
+    --link-color: var(--link-color-dark);
+    --link-focus-shadow: var(--link-focus-shadow-dark);
+    --button-primary-bg: var(--button-primary-bg-dark);
+    --button-primary-text: var(--button-primary-text-dark);
+    --button-primary-hover-bg: var(--button-primary-hover-bg-dark);
+    --button-secondary-bg: var(--button-secondary-bg-dark);
+    --button-secondary-text: var(--button-secondary-text-dark);
+    --button-secondary-hover-bg: var(--button-secondary-hover-bg-dark);
+    --message-status-bg: var(--message-status-bg-dark);
+    --message-status-border: var(--message-status-border-dark);
+    --message-error-bg: var(--message-error-bg-dark);
+    --message-error-border: var(--message-error-border-dark);
+    --message-settings-bg: var(--message-settings-bg-dark);
+    --message-settings-border: var(--message-settings-border-dark);
 }
 
 /* --- Global Resets / Base Styles --- */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.7;
+    font-family: var(--font-family-main);
+    line-height: 1.6;
     background-color: var(--body-bg);
     color: var(--text-color);
     margin: 0;
@@ -104,105 +127,110 @@ body {
     transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
-hr { /* Moved hr to base styles as it's a general element */
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 40px 0;
+* {
+    box-sizing: border-box;
 }
 
-/* --- Typography --- */
-h1, h2, h3 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--heading-color);
-    margin-top: 1em;
-    margin-bottom: 0.7em;
+/* --- Layout --- */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    font-size: 2.8em;
-    color: var(--main-title-color);
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 40px;
 }
 
-h2 {
-    font-size: 1.8em;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.3em;
-    margin-bottom: 25px;
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 40px;
 }
 
-h3 {
-    font-size: 1.4em;
+.form-and-settings-column,
+.workout-and-history-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* --- Typography --- */
+h1, h2 {
+    font-family: var(--font-family-main);
     color: var(--heading-color);
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin: 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 600;
 }
 
 p {
     margin-bottom: 1em;
-    color: var(--text-color);
-}
-
-a {
-    color: var(--link-color);
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* --- Layout / Container --- */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+    color: var(--text-color-secondary);
 }
 
 /* --- Component: Cards --- */
 .card {
     background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    padding: 25px 30px;
-    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    padding: 30px;
     transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
 /* --- Component: Buttons --- */
 button,
-input[type="submit"] { /* General button reset/base */
-    padding: 12px 20px;
+input[type="submit"] {
+    padding: 12px 24px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 1em;
     font-weight: 600;
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, transform 0.1s ease;
+    font-family: var(--font-family-main);
+    transition: background-color var(--transition-speed) ease, transform 0.1s ease;
     text-align: center;
 }
 
-/* Primary Button Style (e.g., form submit) */
-button[type="submit"] {
+button:active,
+input[type="submit"]:active {
+    transform: translateY(1px);
+}
+
+/* Primary Button (Generate) */
+form button[type="submit"] {
     background-color: var(--button-primary-bg);
     color: var(--button-primary-text);
     display: block;
     width: 100%;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
-button[type="submit"]:hover {
+form button[type="submit"]:hover {
     background-color: var(--button-primary-hover-bg);
 }
 
-/* Secondary Button Style (e.g., save, theme toggle) */
-#saveSettingsButton, /* User settings save */
-#saveWorkoutButton,   /* Save workout button */
-#themeToggle {        /* Theme toggle button */
+/* Secondary Buttons (Save, Theme) */
+#saveSettingsButton,
+#saveWorkoutButton,
+#themeToggle {
     background-color: var(--button-secondary-bg);
     color: var(--button-secondary-text);
-    width: auto;
-    display: inline-block;
-    margin-top: 15px; /* Default margin for buttons in forms */
 }
 
 #saveSettingsButton:hover,
@@ -211,33 +239,29 @@ button[type="submit"]:hover {
     background-color: var(--button-secondary-hover-bg);
 }
 
-/* Specific Adjustments for Buttons */
 #themeToggle {
-    margin-top: 0; /* Reset for non-form context */
-    margin-left: 10px; /* Example spacing if next to another button */
-    padding: 8px 15px; /* Slightly smaller for a utility button */
+    padding: 10px 20px;
     font-size: 0.9em;
 }
 
-/* Ensure the theme toggle button is not full width if it's the only one in its line */
-div > #themeToggle:only-child {
-    width: auto;
-    display: inline-block;
+#saveWorkoutButton {
+    margin-top: 15px;
 }
 
-/* Active state for all buttons */
-button:active,
-input[type="submit"]:active {
-    transform: translateY(1px);
+/* --- Component: Forms --- */
+form div {
+    margin-bottom: 20px;
+}
+form div:last-of-type {
+    margin-bottom: 0;
 }
 
-/* --- Component: Forms (general inputs, labels, selects) --- */
 label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: var(--text-color-light);
-    font-size: 0.95em;
+    color: var(--text-color-secondary);
+    font-size: 0.9em;
 }
 
 select,
@@ -246,14 +270,14 @@ input[type="password"],
 input[type="number"],
 textarea {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px;
     border: 1px solid var(--input-border-color);
-    border-radius: 6px;
-    box-sizing: border-box;
+    border-radius: 8px;
     font-size: 1em;
+    font-family: var(--font-family-main);
     color: var(--text-color);
     background-color: var(--input-bg);
-    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease, background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
 select:focus,
@@ -262,233 +286,172 @@ input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
     outline: none;
-    border-color: var(--link-focus-border-color);
-    box-shadow: 0 0 0 2px var(--link-focus-shadow-color);
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px var(--link-focus-shadow);
 }
 
 textarea {
-    min-height: 80px;
+    min-height: 90px;
     resize: vertical;
 }
 
-input[type="checkbox"] {
-    margin-right: 8px;
-    vertical-align: middle;
-    transform: scale(1.1);
-    accent-color: var(--link-color); /* Modern way to color checkboxes */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-input[type="checkbox"] + label {
-    font-weight: normal;
-    display: inline-block;
-    margin-bottom: 0;
+.checkbox-group input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-group label {
+    background-color: var(--body-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    font-size: 0.9em;
+    font-weight: 400;
+    border: 1px solid var(--border-color);
+}
+
+.checkbox-group input[type="checkbox"]:checked + label {
+    background-color: var(--link-color);
+    color: var(--button-primary-text);
+    border-color: var(--link-color);
+}
+
+/* --- Component: Workout Output --- */
+#workout-output-card {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#workoutOutput {
+    background: var(--body-bg);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 200px;
+    font-family: var(--font-family-mono);
+    font-size: 0.95em;
+    line-height: 1.7;
     color: var(--text-color);
-    font-size: 1em;
+    flex-grow: 1;
 }
 
-/* --- Component: Workout Generator Form Specifics --- */
-/* Styles specific to #workoutForm and its children beyond general form styling */
-/* form#workoutForm is mostly a wrapper, general styles apply */
-/* Spacing for checkbox groups within any form */
-form div div { /* Targeting the div that wraps checkboxes */
-    margin-top: 5px;
+/* Markdown content inside output */
+#workoutOutput h2, #workoutOutput h3 {
+    font-family: var(--font-family-main);
+    border-bottom: none;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
 }
-form div div label { /* Labels next to checkboxes */
-    margin-bottom: 5px; /* Space between checkbox lines */
+#workoutOutput ul, #workoutOutput ol {
+    padding-left: 20px;
 }
-
-/* Remove card styling from the form itself if it's wrapped in a .card section */
-/* This could also be seen as a reset or base style for these specific elements when used in cards */
-form#workoutForm,
-div#userSettingsForm {
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
-    box-shadow: none;
-    margin-bottom: 0;
-}
-
-/* --- Component: User Settings Form Specifics --- */
-/* div#userSettingsForm is mostly a wrapper, general styles apply */
 
 /* --- Component: Workout History --- */
-/* Card styling is applied by the .card wrapper for #workoutHistory container */
 .history-item {
     padding: 15px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     margin-bottom: 15px;
-    background-color: var(--history-item-bg);
-    transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+    background-color: var(--body-bg);
 }
-.history-item:last-child {
-    margin-bottom: 0;
-}
+.history-item:last-child { margin-bottom: 0; }
 
-.history-item strong { /* Title of history item */
+.history-item strong {
     font-size: 1.1em;
-    color: var(--main-title-color);
-    display: block;
-    margin-bottom: 5px;
-}
-
-.history-item p { /* Secondary text in history item */
-    font-size: 0.9em;
-    color: var(--text-color-light);
-    margin-bottom: 8px;
-}
-
-.history-item details {
-    margin-top: 10px;
+    color: var(--heading-color);
 }
 
 .history-item summary {
     cursor: pointer;
     font-weight: 600;
     color: var(--link-color);
-    padding: 5px;
-    border-radius: 4px;
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    padding: 5px 0;
     display: inline-block;
-}
-.history-item summary:hover {
-    background-color: var(--history-item-summary-hover-bg);
 }
 
 .history-item details pre {
-    background: var(--history-item-pre-bg);
-    padding: 10px;
-    border-radius: 4px;
+    background: var(--body-bg);
+    padding: 15px;
+    border-radius: 6px;
     margin-top: 8px;
     white-space: pre-wrap;
     word-wrap: break-word;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: var(--font-family-mono);
     font-size: 0.9em;
-    color: var(--history-item-pre-text-color);
-    border: 1px solid var(--history-item-pre-border-color);
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
-}
-
-/* --- Component: Workout Output --- */
-/* Card styling is applied by the .card wrapper for #workoutOutput container */
-#workoutOutput {
-    background: var(--workout-output-bg);
-    padding: 20px;
-    border-radius: 6px;
     border: 1px solid var(--border-color);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    min-height: 150px;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 0.95em;
-    line-height: 1.6;
-    color: var(--workout-output-text-color);
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
-/* Markdown generated content styles within #workoutOutput */
-#workoutOutput h1,
-#workoutOutput h2,
-#workoutOutput h3 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--heading-color);
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-top: 1.2em;
-    margin-bottom: 0.6em;
-}
-
-#workoutOutput h1 { font-size: 1.6em; }
-#workoutOutput h2 { font-size: 1.4em; }
-#workoutOutput h3 { font-size: 1.2em; }
-
-#workoutOutput ul,
-#workoutOutput ol {
-    margin-left: 0;
-    padding-left: 25px;
-    margin-bottom: 1em;
-}
-
-#workoutOutput li {
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-
-#workoutOutput p {
-    margin-bottom: 1em;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.7;
-    color: var(--workout-output-text-color);
-}
-
-#workoutOutput strong {
-    font-weight: 600;
-}
-
-#workoutOutput em {
-    font-style: italic;
-}
-
-/* --- Component: Messages (status, error) --- */
-#messageArea { /* This is a wrapper, might not need specific styling if messages are self-contained */
-    margin-top: 20px;
-    padding: 0;
-    border-radius: 0;
+/* --- Component: Messages --- */
+#messageArea {
+    margin-bottom: -15px; /* Counteract card gap */
 }
 
 #statusMessage,
 #errorMessage,
 #settingsMessage {
     padding: 12px 15px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin-bottom: 15px;
     font-size: 0.95em;
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+    border: 1px solid transparent;
 }
 
 #statusMessage {
     background-color: var(--message-status-bg);
-    color: var(--message-status-text);
-    border: 1px solid var(--message-status-border);
+    border-color: var(--message-status-border);
 }
 
 #errorMessage {
     background-color: var(--message-error-bg);
-    color: var(--message-error-text);
-    border: 1px solid var(--message-error-border);
-    font-weight: 500;
+    border-color: var(--message-error-border);
+    color: #d93025;
 }
+body.dark-mode #errorMessage { color: #ff8a80; }
+
 
 #settingsMessage {
     background-color: var(--message-settings-bg);
-    color: var(--message-settings-text);
-    border: 1px solid var(--message-settings-border);
-    margin-top: 10px;
+    border-color: var(--message-settings-border);
+    margin-top: 15px;
+    margin-bottom: 0;
 }
 
 /* --- Media Queries / Responsiveness --- */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 15px;
     }
-    h1 { font-size: 2.2em; margin-bottom: 30px; }
-    h2 { font-size: 1.6em; margin-bottom: 20px; }
-    .card { padding: 20px; }
-    button, input[type="submit"], #saveSettingsButton, #saveWorkoutButton, #themeToggle {
-        font-size: 0.95em;
-        padding: 10px 15px;
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
     }
-     #themeToggle { padding: 8px 12px; font-size: 0.85em;}
+    h1 { font-size: 2em; }
+    .card { padding: 20px; }
 }
 
 @media (max-width: 480px) {
-    body { line-height: 1.6; }
+    body { line-height: 1.5; }
     h1 { font-size: 1.8em; }
-    h2 { font-size: 1.4em; }
-    select, input[type="text"], input[type="password"], input[type="number"], textarea {
-        padding: 10px;
-        font-size: 0.95em;
+    h2 { font-size: 1.3em; }
+    .checkbox-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
-    .card { padding: 15px; }
-    #themeToggle { padding: 6px 10px; font-size: 0.8em;}
 }

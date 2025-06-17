@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(data.error || 'Failed to save API key.');
+            throw new Error(errorData.error || 'Failed to save API key.');
         }
         return response.json();
     }
@@ -90,6 +90,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Failed to save user settings.');
+        }
+        return response.json();
+    }
+
+    async function deleteWorkoutRequest(workoutId) {
+        const response = await fetch(`/delete_workout/${workoutId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete workout.');
         }
         return response.json();
     }
@@ -141,9 +152,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         <summary>View Full Workout</summary>
                         <pre>${item.full_workout_text}</pre>
                     </details>
+                    <button class="delete-workout-btn" data-id="${item.id}">Delete Workout</button>
                 </div>
             `).join('');
             workoutHistory.innerHTML = historyHtml;
+
+           // Add event listeners to the new delete buttons
+           document.querySelectorAll('.delete-workout-btn').forEach(button => {
+               button.addEventListener('click', handleDeleteWorkoutClick);
+           });
         }
     }
 
@@ -268,18 +285,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+   async function handleDeleteWorkoutClick(event) {
+       const workoutId = event.target.dataset.id;
+       if (!confirm('Are you sure you want to delete this workout?')) {
+           return;
+       }
+
+       clearMessages();
+       displayStatusMessage('Deleting workout...');
+
+       try {
+           const result = await deleteWorkoutRequest(workoutId);
+           displayStatusMessage(result.message);
+           await fetchAndDisplayWorkoutHistory(); // Refresh history
+       } catch (error) {
+           console.error('Error deleting workout:', error);
+           displayErrorMessage(error.message || 'A network error occurred while deleting.');
+       } finally {
+           setTimeout(() => {
+               displayStatusMessage('');
+           }, 3000);
+       }
+   }
+
     // --- Theme Management ---
     function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
+        document.body.classList.toggle('dark-mode', theme === 'dark');
+        if (themeToggleButton) {
+            themeToggleButton.textContent = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
         }
         localStorage.setItem('appTheme', theme);
-        // Optional: Update button text if needed - for now, CSS can handle icon changes if desired
-        if (themeToggleButton) {
-            themeToggleButton.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
-        }
     }
 
     // --- Initialization Functions ---

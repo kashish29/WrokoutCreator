@@ -4,152 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MVP Workout Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="container"> <!-- Main content wrapper -->
-    <div style="text-align: right; margin-bottom: 15px; margin-top: -10px;"> <!-- Adjusted margins -->
-        <button id="themeToggle">Toggle Theme</button> <!-- Styled as secondary button by default via CSS -->
-    </div>
-    <h1>Workout Generator</h1>
+<div class="container">
+    <header class="main-header">
+        <h1>Workout Generator</h1>
+        <button id="themeToggle">Toggle Theme</button>
+    </header>
 
-    <!-- Form for user inputs -->
-    <section class="card">
-    <form id="workoutForm">
-        <div>
-            <label for="experience">Experience Level:</label>
-            <select name="experience" id="experience" required>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-            </select>
+    <main class="main-content">
+        <div class="form-and-settings-column">
+            <!-- Form for user inputs -->
+            <section class="card" id="generator-card">
+                <h2>Generate Your Workout</h2>
+                <form id="workoutForm">
+                    <div>
+                        <label for="experience">Experience Level:</label>
+                        <select name="experience" id="experience" required>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="goal">Primary Goal:</label>
+                        <select name="goal" id="goal" required>
+                            <option value="Build Muscle">Build Muscle</option>
+                            <option value="Get Stronger">Get Stronger</option>
+                            <option value="General Fitness">General Fitness</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="focus">Workout Focus for Today:</label>
+                        <select name="focus" id="focus" required>
+                            <option value="Upper Body">Upper Body</option>
+                            <option value="Lower Body">Lower Body</option>
+                            <option value="Full Body">Full Body</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Available Equipment:</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="equipment" value="Dumbbells" id="eq_dumbbells"> <label for="eq_dumbbells">Dumbbells</label>
+                            <input type="checkbox" name="equipment" value="Barbell" id="eq_barbell"> <label for="eq_barbell">Barbell</label>
+                            <input type="checkbox" name="equipment" value="Kettlebell" id="eq_kettlebell"> <label for="eq_kettlebell">Kettlebell</label>
+                            <input type="checkbox" name="equipment" value="Resistance Bands" id="eq_resistance_bands"> <label for="eq_resistance_bands">Resistance Bands</label>
+                            <input type="checkbox" name="equipment" value="Bodyweight only" id="eq_bodyweight" checked> <label for="eq_bodyweight">Bodyweight only</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="userNotes">Any notes for the coach? (e.g., injuries, preferences)</label>
+                        <textarea id="userNotes" name="userNotes" rows="3" placeholder="e.g., 'My left shoulder feels a bit pinchy'"></textarea>
+                    </div>
+
+                    <button type="submit">Generate Workout</button>
+                </form>
+            </section>
+
+            <section class="card" id="settings-card">
+                <h2>User Settings</h2>
+                <div id="userSettingsForm">
+                    <div>
+                        <label for="geminiApiKey">Gemini API Key:</label>
+                        <input type="password" id="geminiApiKey" name="geminiApiKey">
+                    </div>
+                    <div>
+                        <label for="strength_freq">Strength Frequency (days/week):</label>
+                        <input type="number" id="strength_freq" name="strength_freq" min="0" max="7">
+                    </div>
+                    <div>
+                        <label for="hiit_freq">HIIT Frequency (days/week):</label>
+                        <input type="number" id="hiit_freq" name="hiit_freq" min="0" max="7">
+                    </div>
+                    <div>
+                        <label for="zone2_freq">Zone 2 Frequency (days/week):</label>
+                        <input type="number" id="zone2_freq" name="zone2_freq" min="0" max="7">
+                    </div>
+                    <div>
+                        <label for="recovery_freq">Recovery Frequency (days/week):</label>
+                        <input type="number" id="recovery_freq" name="recovery_freq" min="0" max="7">
+                    </div>
+                    <div>
+                        <label for="focus_rotation">Strength Focus Rotation (comma-separated):</label>
+                        <input type="text" id="focus_rotation" name="focus_rotation">
+                    </div>
+                    <div>
+                        <label for="primary_goal">Primary Goal:</label>
+                        <select name="primary_goal" id="primary_goal">
+                            <option value="Balanced Fitness">Balanced Fitness</option>
+                            <option value="Strength Gain">Strength Gain</option>
+                            <option value="Muscle Hypertrophy">Muscle Hypertrophy</option>
+                            <option value="Fat Loss">Fat Loss</option>
+                            <option value="Athletic Performance">Athletic Performance</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="ai_model_id">AI Model:</label>
+                        <select name="ai_model_id" id="ai_model_id">
+                            <!-- Options can be pre-filled or loaded by JS. Hardcoding based on app.py GEMINI_MODELS -->
+                            <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
+                            <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Latest)</option>
+                            <option value="gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+                            <!-- Manually adding a few more common ones from the GEMINI_MODELS list in app.py -->
+                            <option value="gemini-1.5-flash-002">Gemini 1.5 Flash (128k+)</option>
+                            <option value="gemini-2.5-pro-preview-06-05">Gemini 2.5 Pro Preview (200k+)</option>
+                            <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash Preview</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="workout_duration_preference">Preferred Workout Duration:</label>
+                        <select name="workout_duration_preference" id="workout_duration_preference">
+                            <option value="Any">Any</option>
+                            <option value="Short">Short (~30min)</option>
+                            <option value="Medium">Medium (~45-60min)</option>
+                            <option value="Long">Long (~60-90min)</option>
+                        </select>
+                    </div>
+                    <button type="button" id="saveSettingsButton">Save Settings</button>
+                    <p id="settingsMessage"></p>
+                </div>
+            </section>
         </div>
 
-        <div>
-            <label for="goal">Primary Goal:</label>
-            <select name="goal" id="goal" required>
-                <option value="Build Muscle">Build Muscle</option>
-                <option value="Get Stronger">Get Stronger</option>
-                <option value="General Fitness">General Fitness</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="focus">Workout Focus for Today:</label>
-            <select name="focus" id="focus" required>
-                <option value="Upper Body">Upper Body</option>
-                <option value="Lower Body">Lower Body</option>
-                <option value="Full Body">Full Body</option>
-            </select>
-        </div>
-
-        <div>
-            <label>Available Equipment:</label>
-            <div>
-                <input type="checkbox" name="equipment" value="Dumbbells" id="eq_dumbbells"> <label for="eq_dumbbells">Dumbbells</label><br>
-                <input type="checkbox" name="equipment" value="Barbell" id="eq_barbell"> <label for="eq_barbell">Barbell</label><br>
-                <input type="checkbox" name="equipment" value="Kettlebell" id="eq_kettlebell"> <label for="eq_kettlebell">Kettlebell</label><br>
-                <input type="checkbox" name="equipment" value="Resistance Bands" id="eq_resistance_bands"> <label for="eq_resistance_bands">Resistance Bands</label><br>
-                <input type="checkbox" name="equipment" value="Bodyweight only" id="eq_bodyweight" checked> <label for="eq_bodyweight">Bodyweight only</label><br>
+        <div class="workout-and-history-column">
+             <!-- Area for displaying messages and workout -->
+            <div id="messageArea">
+                <p id="statusMessage"></p>
+                <p id="errorMessage"></p>
             </div>
-        </div>
 
-        <div>
-            <label for="userNotes">Any notes for the coach? (e.g., injuries, preferences)</label>
-            <textarea id="userNotes" name="userNotes" rows="3" placeholder="e.g., 'My left shoulder feels a bit pinchy' or 'Let's really focus on arms today'"></textarea>
-        </div>
+            <section class="card" id="workout-output-card">
+                <h2>Your Workout Plan:</h2>
+                <pre id="workoutOutput"></pre>
+                <button id="saveWorkoutButton" style="display: none;">Save Workout</button>
+            </section>
 
-        <button type="submit">Generate Workout</button>
-    </form>
-    </section>
-
-    <hr> <!-- Optional: for visual separation -->
-    <section class="card">
-    <h2>User Settings</h2>
-    <div id="userSettingsForm">
-        <div>
-            <label for="geminiApiKey">Gemini API Key:</label>
-            <input type="password" id="geminiApiKey" name="geminiApiKey" style="width: 300px;">
+            <section class="card" id="history-card">
+                <h2>Workout History (Last 14 Days)</h2>
+                <div id="workoutHistory">
+                    <p>Loading history...</p>
+                </div>
+            </section>
         </div>
-        <div>
-            <label for="strength_freq">Strength Frequency (days/week):</label>
-            <input type="number" id="strength_freq" name="strength_freq" min="0" max="7">
-        </div>
-        <div>
-            <label for="hiit_freq">HIIT Frequency (days/week):</label>
-            <input type="number" id="hiit_freq" name="hiit_freq" min="0" max="7">
-        </div>
-        <div>
-            <label for="zone2_freq">Zone 2 Frequency (days/week):</label>
-            <input type="number" id="zone2_freq" name="zone2_freq" min="0" max="7">
-        </div>
-        <div>
-            <label for="recovery_freq">Recovery Frequency (days/week):</label>
-            <input type="number" id="recovery_freq" name="recovery_freq" min="0" max="7">
-        </div>
-        <div>
-            <label for="focus_rotation">Strength Focus Rotation (comma-separated):</label>
-            <input type="text" id="focus_rotation" name="focus_rotation" style="width: 300px;">
-        </div>
-        <div>
-            <label for="primary_goal">Primary Goal:</label>
-            <select name="primary_goal" id="primary_goal">
-                <option value="Balanced Fitness">Balanced Fitness</option>
-                <option value="Strength Gain">Strength Gain</option>
-                <option value="Muscle Hypertrophy">Muscle Hypertrophy</option>
-                <option value="Fat Loss">Fat Loss</option>
-                <option value="Athletic Performance">Athletic Performance</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="ai_model_id">AI Model:</label>
-            <select name="ai_model_id" id="ai_model_id">
-                <!-- Options can be pre-filled or loaded by JS. Hardcoding based on app.py GEMINI_MODELS -->
-                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
-                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Latest)</option>
-                <option value="gemini-2.0-flash-001">Gemini 2.0 Flash</option>
-                <!-- Manually adding a few more common ones from the GEMINI_MODELS list in app.py -->
-                <option value="gemini-1.5-flash-002">Gemini 1.5 Flash (128k+)</option>
-                <option value="gemini-2.5-pro-preview-06-05">Gemini 2.5 Pro Preview (200k+)</option>
-                <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash Preview</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="workout_duration_preference">Preferred Workout Duration:</label>
-            <select name="workout_duration_preference" id="workout_duration_preference">
-                <option value="Any">Any</option>
-                <option value="Short">Short (~30min)</option>
-                <option value="Medium">Medium (~45-60min)</option>
-                <option value="Long">Long (~60-90min)</option>
-            </select>
-        </div>
-        <button type="button" id="saveSettingsButton" style="margin-top: 10px;">Save Settings</button>
-        <p id="settingsMessage" style="margin-top: 5px;"></p>
-    </div>
-    </section>
-
-    <hr>
-
-    <section class="card">
-    <h2>Workout History (Last 14 Days)</h2>
-    <div id="workoutHistory">
-        <p>Loading history...</p>
-    </div>
-    </section>
-
-    <!-- Area for displaying messages and workout -->
-    <div id="messageArea" style="margin-top: 20px;">
-        <p id="statusMessage"></p>
-        <p id="errorMessage" style="color: red;"></p>
-    </div>
-
-    <section class="card">
-    <h2>Your Workout Plan:</h2>
-    <pre id="workoutOutput"></pre>
-    <button id="saveWorkoutButton" style="display: none; margin-top: 10px;">Save Workout</button>
-    </section>
+    </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

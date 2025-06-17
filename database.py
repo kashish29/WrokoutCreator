@@ -147,7 +147,7 @@ def get_workout_history(user_id, days=14):
     start_date = datetime.now() - timedelta(days=days)
     
     cursor.execute('''
-    SELECT pillar, focus, muscles_worked, workout_date, full_workout_text
+    SELECT id, pillar, focus, muscles_worked, workout_date, full_workout_text
     FROM workout_history
     WHERE user_id = ? AND workout_date >= ?
     ORDER BY workout_date DESC
@@ -164,6 +164,19 @@ def get_workout_history(user_id, days=14):
         
     conn.close()
     return history
+
+def delete_workout_from_history(workout_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM workout_history WHERE id = ?", (workout_id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 def get_user_settings(user_id):
     conn = get_db_connection()
