@@ -33,9 +33,30 @@ def setup_database():
         recovery_freq INTEGER DEFAULT 1,
         focus_rotation TEXT DEFAULT '["Upper Body", "Lower Body", "Push", "Pull"]',
         primary_goal TEXT DEFAULT 'Balanced Fitness',
+        ai_model_id TEXT DEFAULT 'gemini-1.5-flash-latest',
+        workout_duration_preference TEXT DEFAULT 'Any',
         FOREIGN KEY (user_id) REFERENCES users (id)
     )
     ''')
+
+    # Add new columns if they don't exist (for existing tables)
+    # This is a common pattern but might be complex with just one replace operation.
+    # For now, we assume CREATE TABLE IF NOT EXISTS handles new setups,
+    # and manual migration might be needed for existing dbs if this script is rerun.
+    # A more robust script would use try-except blocks for ALTER TABLE.
+    try:
+        cursor.execute("SELECT ai_model_id, workout_duration_preference FROM user_settings LIMIT 1")
+    except sqlite3.OperationalError:
+        # Columns likely don't exist, try to add them
+        print("Attempting to add 'ai_model_id' and 'workout_duration_preference' to 'user_settings' table.")
+        try:
+            cursor.execute("ALTER TABLE user_settings ADD COLUMN ai_model_id TEXT DEFAULT 'gemini-1.5-flash-latest'")
+            cursor.execute("ALTER TABLE user_settings ADD COLUMN workout_duration_preference TEXT DEFAULT 'Any'")
+            conn.commit()
+            print("Columns added successfully.")
+        except sqlite3.OperationalError as e:
+            print(f"Error adding columns: {e}. Manual schema migration might be needed.")
+
 
     # Create workout_history table
     cursor.execute('''
@@ -65,14 +86,16 @@ def setup_database():
             "zone2_freq": 2,
             "recovery_freq": 1,
             "focus_rotation": json.dumps(["Upper Body", "Lower Body", "Push", "Pull"]),
-            "primary_goal": "Balanced Fitness"
+            "primary_goal": "Balanced Fitness",
+            "ai_model_id": "gemini-1.5-flash-latest",
+            "workout_duration_preference": "Any"
         }
         cursor.execute('''
-        INSERT INTO user_settings (user_id, strength_freq, hiit_freq, zone2_freq, recovery_freq, focus_rotation, primary_goal)
-        VALUES (:user_id, :strength_freq, :hiit_freq, :zone2_freq, :recovery_freq, :focus_rotation, :primary_goal)
+        INSERT INTO user_settings (user_id, strength_freq, hiit_freq, zone2_freq, recovery_freq, focus_rotation, primary_goal, ai_model_id, workout_duration_preference)
+        VALUES (:user_id, :strength_freq, :hiit_freq, :zone2_freq, :recovery_freq, :focus_rotation, :primary_goal, :ai_model_id, :workout_duration_preference)
         ''', default_settings)
         conn.commit()
-        print(f"Default user 'default_user' with ID {user_id} and settings created.")
+        print(f"Default user 'default_user' with ID {user_id} and settings created with new fields.")
     else:
         user_id = user['id']
         # Check if settings exist for default user, if not, create them
@@ -86,14 +109,16 @@ def setup_database():
                 "zone2_freq": 2,
                 "recovery_freq": 1,
                 "focus_rotation": json.dumps(["Upper Body", "Lower Body", "Push", "Pull"]),
-                "primary_goal": "Balanced Fitness"
+            "primary_goal": "Balanced Fitness",
+            "ai_model_id": "gemini-1.5-flash-latest",
+            "workout_duration_preference": "Any"
             }
             cursor.execute('''
-            INSERT INTO user_settings (user_id, strength_freq, hiit_freq, zone2_freq, recovery_freq, focus_rotation, primary_goal)
-            VALUES (:user_id, :strength_freq, :hiit_freq, :zone2_freq, :recovery_freq, :focus_rotation, :primary_goal)
+        INSERT INTO user_settings (user_id, strength_freq, hiit_freq, zone2_freq, recovery_freq, focus_rotation, primary_goal, ai_model_id, workout_duration_preference)
+        VALUES (:user_id, :strength_freq, :hiit_freq, :zone2_freq, :recovery_freq, :focus_rotation, :primary_goal, :ai_model_id, :workout_duration_preference)
             ''', default_settings_values)
             conn.commit()
-            print(f"Default settings created for existing user 'default_user' with ID {user_id}.")
+        print(f"Default settings created for existing user 'default_user' with ID {user_id} with new fields.")
 
 
     conn.close()
@@ -144,12 +169,27 @@ def get_user_settings(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT strength_freq, hiit_freq, zone2_freq, recovery_freq, focus_rotation, primary_goal FROM user_settings WHERE user_id = ?", (user_id,))
+    # Fetch all relevant columns including the new ones
+    cursor.execute("""
+        SELECT strength_freq, hiit_freq, zone2_freq, recovery_freq,
+               focus_rotation, primary_goal, ai_model_id, workout_duration_preference
+        FROM user_settings WHERE user_id = ?
+    """, (user_id,))
     settings_row = cursor.fetchone()
     
     if settings_row:
         settings = dict(settings_row)
-        settings['focus_rotation'] = json.loads(settings['focus_rotation'])
+        # Safely parse JSON for focus_rotation
+        try:
+            settings['focus_rotation'] = json.loads(settings['focus_rotation']) if settings['focus_rotation'] else []
+        except (json.JSONDecodeError, TypeError):
+            settings['focus_rotation'] = ["Upper Body", "Lower Body", "Push", "Pull"] # Default on error
+
+        # Provide defaults for new fields if they are missing (e.g., for older records)
+        if 'ai_model_id' not in settings or settings['ai_model_id'] is None:
+            settings['ai_model_id'] = 'gemini-1.5-flash-latest' # Default model
+        if 'workout_duration_preference' not in settings or settings['workout_duration_preference'] is None:
+            settings['workout_duration_preference'] = 'Any' # Default duration
     else:
         # Return default settings if none found for the user
         settings = {
@@ -158,7 +198,9 @@ def get_user_settings(user_id):
             "zone2_freq": 2,
             "recovery_freq": 1,
             "focus_rotation": ["Upper Body", "Lower Body", "Push", "Pull"],
-            "primary_goal": "Balanced Fitness"
+            "primary_goal": "Balanced Fitness",
+            "ai_model_id": "gemini-1.5-flash-latest",
+            "workout_duration_preference": "Any"
         }
     conn.close()
     return settings
@@ -227,7 +269,9 @@ if __name__ == '__main__':
         "zone2_freq": 3,
         "recovery_freq": 1,
         "focus_rotation": ["Push", "Pull", "Legs", "Upper", "Lower"],
-        "primary_goal": "Strength Gain"
+        "primary_goal": "Strength Gain",
+        "ai_model_id": "gemini-1.5-pro-latest",
+        "workout_duration_preference": "Medium"
     }
     save_user_settings(1, new_settings)
     updated_settings = get_user_settings(1)
@@ -235,7 +279,9 @@ if __name__ == '__main__':
     assert updated_settings["strength_freq"] == 3
     assert updated_settings["focus_rotation"] == ["Push", "Pull", "Legs", "Upper", "Lower"]
     assert updated_settings["primary_goal"] == "Strength Gain"
-    print("Settings save and update seems to work.")
+    assert updated_settings["ai_model_id"] == "gemini-1.5-pro-latest"
+    assert updated_settings["workout_duration_preference"] == "Medium"
+    print("Settings save and update seems to work for all fields.")
 
     # Test saving workout history
     print("\nSaving a sample workout for user 1:")
