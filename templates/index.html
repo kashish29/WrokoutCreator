@@ -30,13 +30,22 @@
                             <option value="Advanced">Advanced</option>
                         </select>
                     </div>
-
                     <div>
-                        <label for="goal">Primary Goal:</label>
+                        <label for="workout_pillar">Select Workout Pillar:</label>
+                        <select name="workout_pillar" id="workout_pillar" required>
+                            <option value="Strength">Strength</option>
+                            <option value="Zone2 Cardio">Zone2 Cardio</option>
+                            <option value="HIIT">HIIT</option>
+                            <option value="Stability/Mobility">Stability/Mobility</option>
+                            <!-- <option value="Rest">Rest</option> -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="goal">Strength Style (if applicable):</label>
                         <select name="goal" id="goal" required>
                             <option value="Build Muscle">Build Muscle</option>
                             <option value="Get Stronger">Get Stronger</option>
-                            <option value="General Fitness">General Fitness</option>
+                            <option value="General Fitness">General Fitness (Strength)</option>
                         </select>
                     </div>
 
@@ -93,6 +102,10 @@
                         <input type="number" id="recovery_freq" name="recovery_freq" min="0" max="7">
                     </div>
                     <div>
+                        <label for="stability_freq">Stability Frequency (days/week):</label>
+                        <input type="number" id="stability_freq" name="stability_freq" min="0" max="7">
+                    </div>
+                    <div>
                         <label for="focus_rotation">Strength Focus Rotation (comma-separated):</label>
                         <input type="text" id="focus_rotation" name="focus_rotation">
                     </div>
@@ -100,10 +113,11 @@
                         <label for="primary_goal">Primary Goal:</label>
                         <select name="primary_goal" id="primary_goal">
                             <option value="Balanced Fitness">Balanced Fitness</option>
-                            <option value="Strength Gain">Strength Gain</option>
-                            <option value="Muscle Hypertrophy">Muscle Hypertrophy</option>
+                            <option value="Longevity">Longevity</option>
                             <option value="Fat Loss">Fat Loss</option>
-                            <option value="Athletic Performance">Athletic Performance</option>
+                            <option value="VO2 Max Improvement">VO2 Max Improvement</option>
+                            <option value="Strength Focus">Strength Focus</option>
+                            <option value="Hypertrophy Focus">Muscle Hypertrophy</option>
                         </select>
                     </div>
 
@@ -153,6 +167,13 @@
                 <h2>Workout History (Last 14 Days)</h2>
                 <div id="workoutHistory">
                     <p>Loading history...</p>
+                </div>
+            </section>
+
+            <section class="card" id="weekly-plan-card">
+                <h2>Your Current Weekly Plan</h2>
+                <div id="weeklyPlanDisplay">
+                    <p>Loading weekly plan...</p>
                 </div>
             </section>
         </div>
